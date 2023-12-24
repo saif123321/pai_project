@@ -535,3 +535,5 @@ def candle_stick(from_date,to_date,pattern,pattern_symbol,pattern_name):
     graph_html = fig.to_html(full_html=False)
     return graph_html
 
+if __name__=="__main__":
+    app.run(debug=True)
