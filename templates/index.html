@@ -1,0 +1,92 @@
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Candlestick Graph</title>
+</head>
+<body>
+    <h1>Candlestick Graph</h1>
+    {{ graph_html | safe }}
+</body>
+</html> -->
+{% extends "/base.html" %}
+{% block content %}
+    <div class="container-fluid">
+        <h1 class="heading">Apple Stock Exchange DataSet</h1>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="wrapper mb-3">
+                    <form action="" method="post">
+                        <div class="form-group text-center mb-2">
+                            <select class="form-control" required name="dataset" id="dataset">
+                                <option value="2000-2004">2000-2004</option>
+                                <option value="2005-2009">2005-2009</option>
+                                <option value="2010-2014">2010-2014</option>
+                                <option value="2015-2019">2015-2019</option>
+                                <option value="2019-2022">2019-2022</option>
+                            </select>
+                        </div>
+                        <button style="width: -webkit-fill-available" type="button" class="btn btn-primary"
+                            id="display_data" name="submit">
+                            Display
+                        </button>
+                    </form>
+                </div>
+                <table id="myTable" class="table table-bordered table-sm text-center">
+                    <tr style="background-color: black; color: white">
+                        <th colspan="7">No Data to Display</th>
+                    </tr>
+                </table>
+                <div id="buttonContainer" class="d-none">
+                    <form method="" action="/merge_dataset">
+                        <button type="submit" name="submit" style="width: -webkit-fill-available" class="btn btn-primary mt-2" 
+                            id="mergeDataset">Merge All Dataset</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        var dataTable = null;
+        $("#display_data").click(function () {
+            var selectedDataset = $("#dataset").val();
+
+            $.ajax({
+                url: "/display_data",
+                type: "POST",
+                data: { dataset: selectedDataset },
+                success: function (response) {
+                    var data = JSON.parse(response);
+                    if (dataTable !== null) {
+                        dataTable.destroy();
+                    }
+                    dataTable = $("#myTable").DataTable({
+                        pageLength: 5,
+                        lengthMenu: [
+                            [5, 10, 20, -1],
+                            [5, 10, 20, "All"],
+                        ],
+                        data: data,
+                        columns: Object.keys(data[0]).map(function (key) {
+                            return { data: key, title: key };
+                        }),
+                    });
+                    $("#buttonContainer").removeClass("d-none");
+
+              
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+            });
+        });
+        
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "/base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="heading">Apple Stock Exchange <br> Merged DataSet</h1>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <table class="table table-bordered table-sm text-center" id="data1">
+                <thead class="thead-dark">
+                    <tr>
+                        {% for column in dataset.columns %}
+                        <th scope="col">{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in dataset.iterrows() %}
+                    <tr>
+                        {% for value in row[1] %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form class="d-flex" method="" action="/clean_dataset">
+                <button type="submit"  name="submit" style="width: -webkit-fill-available;margin: 5px;"
+                    class="btn btn-primary mt-2" id="CleanDataset">Clean Dataset</button>
+
+                <button type="submit" name="submit" style="width: -webkit-fill-available;margin: 5px;"
+                    class="btn btn-primary mt-2" id="AnalyzeDataset">Analyze Dataset</button>
+            </form>
+            <div id="PContainer">
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $('#data1').DataTable({
+            pageLength: 5,
+            lengthMenu: [[5, 10, 20, -1], [5, 10, 20, 'All']]
+        });
+
+        $("#AnalyzeDataset").click(function (event) {
+            event.preventDefault();
+
+            $.ajax({
+                url: "/analyze_dataset",
+                type: "POST",
+                data: { dataset: "success" },
+                success: function (response) {
+                    var responseData = JSON.parse(response);
+                    var dataContainer = document.getElementById('PContainer');
+
+                    for (var key in responseData) {
+                            var paragraph = document.createElement('p');
+                            paragraph.textContent = "Column " + key + " Entry Missing Percentage:  " + responseData[key] + " %";
+                            dataContainer.appendChild(paragraph);
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+            });
+        });
+    });
+</script>
+{% endblock %}

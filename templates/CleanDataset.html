@@ -1,0 +1,176 @@
+{% extends "/base.html" %} {% block content %}
+<style>
+    .dataTables_info {
+        margin-top: 27px;
+    }
+</style>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-5">
+            <h1 class="heading">
+                Apple Stock Exchange <br />
+                Cleaned DataSet
+            </h1>
+            <table class="table table-bordered table-sm text-center" id="data1">
+                <thead class="thead-dark">
+                    <tr>
+                        {% for column in dataset.columns %}
+                        <th scope="col">{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in dataset.iterrows() %}
+                    <tr>
+                        {% for value in row[1] %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-7">
+            <h1 class="heading">Graphical Representation</h1>
+            <form action="" method="post">
+                <div class="form-group">
+                    <label for="">Indicators/Patterns : </label>
+                    <select class="form-control" name="indicators" id="indicators">
+                        <option value="none">Select Indicators/Patterns</option>
+                        <optgroup label="Indicators">
+                            <option value="date_wise">Date Wise</option>
+                            <option value="SMA-EMA">Simple/Exponential Moving Average</option>
+                            <option value="RSI">Relative Strength Index</option>
+                        </optgroup>
+                        <optgroup label="Patterns">
+                            <option value="DojiStar">Doji Star</option>
+                            <option value="InHammer">Inverted Hammer</option>
+                            <option value="HangingMan">Hanging Man</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="d-none" id="date_wrapper">
+                    <div class="form-group mb-0" style="width: -webkit-fill-available">
+                        <label for="">From Date: </label>
+                        <input required type="date" class="form-control" name="from_date" id="from_date"
+                            aria-describedby="helpId" placeholder="" />
+                    </div>
+                    <div class="form-group mb-0" style="width: -webkit-fill-available">
+                        <label for="">To Date : </label>
+                        <input required style="margin: 0 2px" type="date" class="form-control" name="to_date"
+                            id="to_date" aria-describedby="helpId" placeholder="" />
+                    </div>
+                </div>
+                <div class="d-none" id="days_wrapper">
+                    <div class="form-group mb-0" style="width: -webkit-fill-available">
+                        <label for="">SMA Days: </label>
+                        <input required type="number" class="form-control" name="sma_days" id="sma_days"
+                            aria-describedby="helpId" placeholder="" />
+                    </div>
+                    <div class="form-group mb-0" style="width: -webkit-fill-available">
+                        <label for="">EMA Days : </label>
+                        <input required style="margin: 0 2px" type="number" class="form-control" name="ema_days"
+                            id="ema_days" aria-describedby="helpId" placeholder="" />
+                    </div>
+                </div>
+                <button type="submit" name="submit" style="width: -webkit-fill-available; margin: 5px"
+                    class="btn btn-primary mt-2 d-none" id="AnalyzeDataset">
+                    Analyze
+                </button>
+            </form>
+            <div id="imageContainer"></div>
+            <div id="graph_container"></div>
+        </div>
+    </div>
+    {% endblock %} {% block script %}
+    <script>
+        $(document).ready(function () {
+            $("#indicators").change(function () {
+                if ($(this).val() == "none") {
+                    $("#date_wrapper").removeClass("d-flex");
+                    $("#date_wrapper").addClass("d-none");
+                    $("#AnalyzeDataset").addClass("d-none");
+                    $("#days_wrapper").removeClass("d-flex");
+                    $("#days_wrapper").addClass("d-none");
+                } else if (
+                    $(this).val() == "date_wise" ||
+                    $(this).val() == "RSI" ||
+                    $(this).val() == "HangingMan" ||
+                    $(this).val() == "InHammer" ||
+                    $(this).val() == "DojiStar"
+                ) {
+                    $("#date_wrapper").removeClass("d-none");
+                    $("#AnalyzeDataset").removeClass("d-none");
+                    $("#date_wrapper").addClass("d-flex");
+                    $("#days_wrapper").removeClass("d-flex");
+                    $("#days_wrapper").addClass("d-none");
+                } else if ($(this).val() == "SMA-EMA") {
+                    $("#date_wrapper").removeClass("d-none");
+                    $("#AnalyzeDataset").removeClass("d-none");
+                    $("#date_wrapper").addClass("d-flex");
+                    $("#days_wrapper").removeClass("d-none");
+                    $("#days_wrapper").addClass("d-flex");
+                }
+            });
+            $("#data1").DataTable({
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 20, -1],
+                    [10, 20, "All"],
+                ],
+            });
+            $("#AnalyzeDataset").click(function (event) {
+                event.preventDefault();
+                var from_date = document.getElementById("from_date").value;
+                var to_date = document.getElementById("to_date").value;
+                var sma_days = document.getElementById("sma_days").value;
+                var ema_days = document.getElementById("ema_days").value;
+                var response = new Object();
+
+                if ($("#indicators").val() == "date_wise") {
+                    response.indicators = "date_wise";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                    console.log(response);
+                } else if ($("#indicators").val() == "RSI") {
+                    response.indicators = "RSI";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                } else if ($("#indicators").val() == "HangingMan") {
+                    response.indicators = "HangingMan";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                } else if ($("#indicators").val() == "InHammer") {
+                    response.indicators = "InHammer";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                } else if ($("#indicators").val() == "DojiStar") {
+                    response.indicators = "DojiStar";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                } else if ($("#indicators").val() == "SMA-EMA") {
+                    response.indicators = "SMA-EMA";
+                    response.from_date = from_date;
+                    response.to_date = to_date;
+                    response.sma_days = sma_days;
+                    response.ema_days = ema_days;
+                }
+
+                $.ajax({
+                    url: "/insight_data",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(response),
+                    success: function (response) {
+                        console.log(response);
+                        $("#graph_container").html(response.graph_html);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    },
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+</div>
